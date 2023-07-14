@@ -8,12 +8,14 @@ public class FullRam extends BusItem{
 
     @Override
     public byte accessByte(short address) {
-        return memory[address];
+        int iaddress = unsignedShortToInt(address);
+        return memory[iaddress];
     }
 
     @Override
     public boolean writeByte(short address, byte data) {
-        memory[address] = data;
+        int iaddress = unsignedShortToInt(address);
+        memory[iaddress] = data;
         return true;
     }
 }

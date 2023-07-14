@@ -1,15 +1,10 @@
-public enum ProcessorStatus {
-    C (1 << 0), // Carry Flag
-    Z (1 << 1), // Last was Zero
-    I (1 << 2), // Interrupt
-    D (1 << 3), // BCD Mode (unused)
-    B (1 << 4), // Break
-    U (1 << 5), // Unused
-    V (1 << 6), // Overflow
-    N (1 << 7); // Last was Negative
-
-    public final byte offset;
-    private ProcessorStatus(int offset){
-        this.offset = (byte)offset;
-    }
+public class ProcessorStatus {
+    public static byte C = 0;
+    public static byte Z = 1;
+    public static byte I = 2;
+    public static byte D = 3;
+    public static byte B = 4;
+    public static byte U = 5;
+    public static byte V = 6;
+    public static byte N = 7;
 }

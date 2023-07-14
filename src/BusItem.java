@@ -16,7 +16,16 @@ public class BusItem {
     }
 
     // Makes the address from 0x0-<size of range>
-    private short remapToAddressRange(short address) {
+    protected short remapToAddressRange(short address) {
         return (short)(address - addressRange.min);
+    }
+    protected int unsignedShortToInt (short a) {
+        int out = 0;
+
+        for (int i = 0; i <= 0xF; i++) {
+            out |= a & (0x1 << i);
+        }
+
+        return out;
     }
 }
