@@ -1,6 +1,14 @@
 public class CPU6502 {
-    short pc, maddr;
-    byte acc, x, y, stkc, ps, memory;
+    short pc;  // Program counter
+    byte acc;  // Accumulator
+    byte x;    // X register
+    byte y;    // Y register
+    byte stkp; // Stack pointer
+    byte ps;   // Processor status
+
+    byte memory; // Memory, Value is set to the data that the instruction wants
+    short maddr; // Memory address, This gets used for instructions that want an address instead of data
+
     Bus bus;
 
     Opcode opcodes[] = new Opcode[255];
@@ -19,11 +27,17 @@ public class CPU6502 {
         acc = 0x0;
         x = 0x0;
         y = 0x0;
-        stkc = 0x0;
+        stkp = 0x0;
         ps = 0x0;
         memory = 0x0;
 
-        pc = 0x0; // Actually should read a word from $FFFC
+        pc = readWord((short)0xFFFC);
+    }
+
+    public short readWord (short address) {
+        byte lo = bus.cpuReadByte(address);
+        byte hi = bus.cpuReadByte((short)(address+1));
+        return (short)(hi*0x0100 + lo);
     }
 
     public byte getByteHi (short word) {
@@ -68,6 +82,12 @@ public class CPU6502 {
     // Absolute Y-Indexed, Load what is in the address at operand+y
     void ABSY (short operand) {
         maddr = (short)(operand + y);
+        memory = bus.cpuReadByte(maddr);
+    }
+
+    // Zero page X indexed, Take the zero-page address and add x to it
+    void ZRPX (short operand) {
+        maddr = (short)(byte)(operand+x);
         memory = bus.cpuReadByte(maddr);
     }
 

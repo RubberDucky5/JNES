@@ -2,25 +2,29 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Bus {
-    List<BusItem> processors;
+    List<BusItem> devices;
 
     public Bus () {
-        processors = new ArrayList<>();
+        devices = new ArrayList<>();
+    }
+
+    public void addDevice (BusItem device) {
+        devices.add(device);
     }
 
     byte cpuReadByte (short address) {
-        for(int i = 0; i < processors.size(); i++) {
-            if(processors.get(i).addressRange.contains(address)) {
-                return processors.get(i).accessByte(address);
+        for(int i = 0; i < devices.size(); i++) {
+            if(devices.get(i).addressRange.contains(address)) {
+                return devices.get(i).accessByte(address);
             }
         }
         return 0x0;
     }
 
     boolean cpuWriteByte (short address, byte data) {
-        for(int i = 0; i < processors.size(); i++) {
-            if(processors.get(i).addressRange.contains(address)) {
-                return processors.get(i).writeByte(address, data);
+        for(int i = 0; i < devices.size(); i++) {
+            if(devices.get(i).addressRange.contains(address)) {
+                return devices.get(i).writeByte(address, data);
             }
         }
         return false;
