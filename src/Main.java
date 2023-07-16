@@ -6,7 +6,7 @@ public class Main {
         FullRam ram = new FullRam();
         bus.addDevice(ram);
         
-        byte[] program = parseStrToBytes("A9 55 69 03");
+        byte[] program = parseStrToBytes("A2 01 A9 00 18 86 55 65 55 AA A5 55 4C 04 06");
 
         bus.writeBytes((short)0x0600, program);
 
@@ -15,7 +15,14 @@ public class Main {
         Scanner input = new Scanner(System.in);
 
         while (true) {
-            if(input.nextLine() != ""){
+            String i = input.nextLine();
+
+            if(i.equals("r")) {
+                cpu.reset();
+                continue;
+            }
+
+            if(!i.equals("")){
                 break;
             }
 

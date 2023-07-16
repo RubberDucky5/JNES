@@ -1,3 +1,4 @@
+@SuppressWarnings("ALL")
 public class CPU6502 {
     short pc;  // Program counter
     byte acc;  // Accumulator
@@ -47,8 +48,6 @@ public class CPU6502 {
 
         byte size = opcode.amp.XXXX(UnsignedUtil.makeWord(bus.cpuReadByte((short)(pc+1)), bus.cpuReadByte((short)(pc + 2))));
 
-        opcode.mip.XXX();
-
         System.out.printf("Executing instruction: $%1$02X", hex);
         if(size >= 2) {
             System.out.printf(" $%1$02X", bus.cpuReadByte((short)(pc+1)));
@@ -58,7 +57,12 @@ public class CPU6502 {
         }
         System.out.println();
 
-        pc += size;
+        short pcdupe = pc;
+
+        opcode.mip.XXX();
+
+        if(pc == pcdupe)
+            pc += size;
 
         System.out.printf("acc: $%1$02X x: $%2$02X y: $%3$02X pc: $%4$04X stkp: $%5$02X\n", acc, x, y, pc, stkp);
     }
@@ -218,10 +222,8 @@ public class CPU6502 {
     void ADC () { // Signed
         short out = (short)(acc + memory + UnsignedUtil.retrieveBit(ps, ProcessorStatus.C));
 
-        int carry = out >> 8;
+        int carry = UnsignedUtil.retrieveBit(out, 8);
         ps = (byte) UnsignedUtil.setBit(ps, ProcessorStatus.C, carry);
-        ps = (byte) UnsignedUtil.setBit(ps, ProcessorStatus.Z, (acc == 0b0) ? 1 : 0);
-        ps = (byte) UnsignedUtil.setBit(ps, ProcessorStatus.N, UnsignedUtil.retrieveBit(acc, 7));
         if((UnsignedUtil.retrieveBit(acc, 7) ^ UnsignedUtil.retrieveBit(memory, 7)) != 1) {
             if(UnsignedUtil.retrieveBit(out, 7) == UnsignedUtil.retrieveBit(acc, 7)) {
                 ps = (byte) UnsignedUtil.setBit(ps, ProcessorStatus.V, 0);
@@ -236,6 +238,9 @@ public class CPU6502 {
         }
 
         acc = (byte)(out & 0xFF);
+
+        ps = (byte) UnsignedUtil.setBit(ps, ProcessorStatus.Z, (acc == 0b0) ? 1 : 0);
+        ps = (byte) UnsignedUtil.setBit(ps, ProcessorStatus.N, UnsignedUtil.retrieveBit(acc, 7));
     }
 
     void AND () {
