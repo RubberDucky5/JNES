@@ -13,7 +13,7 @@ public class CPU6502 {
 
     Bus bus;
 
-    Opcode opcodes[] = new Opcode[256];
+    Opcode[] opcodes;
 
     private static Opcode o (Opcode.MneInstPtr mip, Opcode.AddrModePtr amp) {return new Opcode(mip, amp);}
 
@@ -282,7 +282,7 @@ public class CPU6502 {
         acc = (byte)(acc & memory);
 
         ps = (byte) UnsignedUtil.setBit(ps, ProcessorStatus.Z, (acc == 0b0) ? 1 : 0);
-        ps = (byte) UnsignedUtil.setBit(ps, ProcessorStatus.Z, UnsignedUtil.retrieveBit(memory, 6));
+        ps = (byte) UnsignedUtil.setBit(ps, ProcessorStatus.V, UnsignedUtil.retrieveBit(memory, 6));
         ps = (byte) UnsignedUtil.setBit(ps, ProcessorStatus.N, UnsignedUtil.retrieveBit(memory, 7));
     }
 
@@ -302,7 +302,12 @@ public class CPU6502 {
     }
 
     void BRK () {
-        // TODO: Figure out how break works
+        pushStack(UnsignedUtil.getByteHi((short)(pc+2)));
+        pushStack(UnsignedUtil.getByteLo((short)(pc+2)));
+
+        pushStack((byte) UnsignedUtil.setBit(ps, ProcessorStatus.B, 1));
+
+        pc = readWord((short)0xFFFA);
     }
 
     void BVC () {
@@ -548,12 +553,11 @@ public class CPU6502 {
         ps = (byte) UnsignedUtil.setBit(ps, ProcessorStatus.V, UnsignedUtil.retrieveBit(status, ProcessorStatus.V));
         ps = (byte) UnsignedUtil.setBit(ps, ProcessorStatus.N, UnsignedUtil.retrieveBit(status, ProcessorStatus.N));
 
-        pc = UnsignedUtil.swapBytes((short)(pullStack()*0x100 + pullStack()));
-
+        pc = UnsignedUtil.swapBytes(UnsignedUtil.makeWord(pullStack(), pullStack()));
     }
 
     void RTS () {
-        pc = UnsignedUtil.swapBytes((short)(pullStack()*0x100 + pullStack()));
+        pc = UnsignedUtil.swapBytes(UnsignedUtil.makeWord(pullStack(), pullStack()));
     }
 
     void SBC () {
