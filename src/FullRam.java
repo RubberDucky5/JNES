@@ -20,6 +20,9 @@ public class FullRam extends BusItem{
     public boolean writeByte(short address, byte data) {
         int iaddress = unsignedShortToInt(address);
         memory[iaddress] = data;
+
+        //System.out.printf("$%1$02X Writen to: $%2$04X", data, address);
+
         return true;
     }
 }

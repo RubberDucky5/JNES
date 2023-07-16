@@ -45,18 +45,22 @@ public class CPU6502 {
         byte hex = bus.cpuReadByte(pc);
         Opcode opcode = opcodes[UnsignedUtil.unsignedByteToInt(hex)];
 
-        byte size = opcode.amp.XXXX((short)((bus.cpuReadByte((short)(pc+1))*0x0100) | bus.cpuReadByte((short)(pc + 2))));
+        byte size = opcode.amp.XXXX(UnsignedUtil.makeWord(bus.cpuReadByte((short)(pc+1)), bus.cpuReadByte((short)(pc + 2))));
 
         opcode.mip.XXX();
 
-        System.out.printf("%X", (short)(((bus.cpuReadByte((short)(pc+1)) & 0xFF) << 8) | (bus.cpuReadByte((short)(pc + 2)) & 0xFF)));
-
-        byte o[] = new byte[]{hex, bus.cpuReadByte((short)(pc+1)), bus.cpuReadByte((short)(pc + 2))};
+        System.out.printf("Executing instruction: $%1$02X", hex);
+        if(size >= 2) {
+            System.out.printf(" $%1$02X", bus.cpuReadByte((short)(pc+1)));
+            if(size >= 3) {
+                System.out.printf(" $%1$02X", bus.cpuReadByte((short)(pc+2)));
+            }
+        }
+        System.out.println();
 
         pc += size;
 
-        System.out.printf("Executing instruction: $%1$02X \n", hex);
-        System.out.printf("acc: $%1$02X x: $%2$02X y: $%3$02X pc: $%4$04X\n", acc, x, y, pc);
+        System.out.printf("acc: $%1$02X x: $%2$02X y: $%3$02X pc: $%4$04X stkp: $%5$02X\n", acc, x, y, pc, stkp);
     }
 
     public void reset() {
@@ -74,23 +78,23 @@ public class CPU6502 {
     public short readWord (short address) {
         byte lo = bus.cpuReadByte(address);
         byte hi = bus.cpuReadByte((short)(address+1));
-        return (short)(hi*0x0100 | lo);
+        return UnsignedUtil.makeWord(hi, lo);
     }
 
     public short readWordZP (short address) {
         byte lo = bus.cpuReadByte(address);
         byte hi = bus.cpuReadByte((byte)(address+1));
-        return (short)(hi*0x0100 | lo);
+        return UnsignedUtil.makeWord(hi, lo);
     }
 
     public void pushStack (byte data) {
-        short pointer = (short)(0x0100 | stkp);
+        short pointer = UnsignedUtil.makeWord((byte)0x01, stkp);
         bus.cpuWriteByte(pointer, data);
         stkp--;
     }
 
-    public byte popStack () {
-        short pointer = (short)(0x0100 | stkp);
+    public byte pullStack() {
+        short pointer = UnsignedUtil.makeWord((byte)0x01, (byte)(stkp+1));
         byte out = bus.cpuReadByte(pointer);
         stkp++;
         return out;
@@ -295,7 +299,7 @@ public class CPU6502 {
     }
 
     void BRK () {
-
+        // TODO: Figure out how break works
     }
 
     void BVC () {
@@ -486,14 +490,14 @@ public class CPU6502 {
     }
 
     void PLA () {
-        acc = popStack();
+        acc = pullStack();
 
         ps = (byte) UnsignedUtil.setBit(ps, ProcessorStatus.Z, (acc == 0b0) ? 1 : 0);
         ps = (byte) UnsignedUtil.setBit(ps, ProcessorStatus.N, UnsignedUtil.retrieveBit(acc, 7));
     }
 
     void PLP () {
-        byte out = popStack();
+        byte out = pullStack();
 
         ps = (byte) UnsignedUtil.setBit(ps, ProcessorStatus.C, UnsignedUtil.retrieveBit(out, ProcessorStatus.C));
         ps = (byte) UnsignedUtil.setBit(ps, ProcessorStatus.Z, UnsignedUtil.retrieveBit(out, ProcessorStatus.Z));
@@ -548,7 +552,7 @@ public class CPU6502 {
     }
 
     void RTI () {
-        byte status = popStack();
+        byte status = pullStack();
 
         ps = (byte) UnsignedUtil.setBit(ps, ProcessorStatus.C, UnsignedUtil.retrieveBit(status, ProcessorStatus.C));
         ps = (byte) UnsignedUtil.setBit(ps, ProcessorStatus.Z, UnsignedUtil.retrieveBit(status, ProcessorStatus.Z));
@@ -559,12 +563,12 @@ public class CPU6502 {
         ps = (byte) UnsignedUtil.setBit(ps, ProcessorStatus.V, UnsignedUtil.retrieveBit(status, ProcessorStatus.V));
         ps = (byte) UnsignedUtil.setBit(ps, ProcessorStatus.N, UnsignedUtil.retrieveBit(status, ProcessorStatus.N));
 
-        pc = UnsignedUtil.swapBytes((short)(popStack()*0x100 + popStack()));
+        pc = UnsignedUtil.swapBytes((short)(pullStack()*0x100 + pullStack()));
 
     }
 
     void RTS () {
-        pc = UnsignedUtil.swapBytes((short)(popStack()*0x100 + popStack()));
+        pc = UnsignedUtil.swapBytes((short)(pullStack()*0x100 + pullStack()));
     }
 
     void SBC () {

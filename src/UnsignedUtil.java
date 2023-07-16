@@ -32,4 +32,8 @@ public class UnsignedUtil {
 
         return v;
     }
+
+    public static short makeWord (byte a, byte b) {
+        return (short)(((a & 0xFF) << 8) | (b & 0xFF));
+    }
 }

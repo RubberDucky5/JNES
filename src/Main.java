@@ -6,7 +6,9 @@ public class Main {
         FullRam ram = new FullRam();
         bus.addDevice(ram);
 
-        bus.writeBytes((short)0x0600, new byte[]{(byte)0xA9, 0x55, (byte)0xA2, 0x34});
+        byte[] program = parseStrToBytes("A9 55 48 A9 00 68");
+
+        bus.writeBytes((short)0x0600, program);
 
         CPU6502 cpu = new CPU6502(bus);
 
@@ -20,4 +22,18 @@ public class Main {
             cpu.clock();
         }
     }
+
+    private static byte[] parseStrToBytes(String str) {
+        String[] strs = str.split("\\s");
+
+        byte[] program = new byte[strs.length];
+
+        for (int i = 0; i < strs.length; i++) {
+            program[i] = (byte)Integer.parseInt(strs[i], 16);
+        }
+
+        return program;
+    }
+
+
 }
