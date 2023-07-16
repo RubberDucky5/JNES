@@ -217,6 +217,7 @@ public class CPU6502 {
 
     void ADC () { // Signed
         short out = (short)(acc + memory + UnsignedUtil.retrieveBit(ps, ProcessorStatus.C));
+
         int carry = out >> 8;
         ps = (byte) UnsignedUtil.setBit(ps, ProcessorStatus.C, carry);
         ps = (byte) UnsignedUtil.setBit(ps, ProcessorStatus.Z, (acc == 0b0) ? 1 : 0);
@@ -233,6 +234,8 @@ public class CPU6502 {
         else  {
             ps = (byte) UnsignedUtil.setBit(ps, ProcessorStatus.V, 0);
         }
+
+        acc = (byte)(out & 0xFF);
     }
 
     void AND () {

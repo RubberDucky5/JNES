@@ -5,8 +5,8 @@ public class Main {
         Bus bus = new Bus();
         FullRam ram = new FullRam();
         bus.addDevice(ram);
-
-        byte[] program = parseStrToBytes("A9 55 48 A9 00 68");
+        
+        byte[] program = parseStrToBytes("A9 55 69 03");
 
         bus.writeBytes((short)0x0600, program);
 
@@ -31,7 +31,7 @@ public class Main {
         for (int i = 0; i < strs.length; i++) {
             program[i] = (byte)Integer.parseInt(strs[i], 16);
         }
-
+        
         return program;
     }
 
