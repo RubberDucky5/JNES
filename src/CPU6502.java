@@ -340,24 +340,6 @@ public class CPU6502 {
         ps = (byte) UnsignedUtil.setBit(ps, ProcessorStatus.N, UnsignedUtil.retrieveBit(out, 7));
     }
 
-    void CMX () {
-        ps = (byte) UnsignedUtil.setBit(ps, ProcessorStatus.C, (x >= memory) ? 1 : 0);
-
-        byte out = (byte)(x - memory);
-
-        ps = (byte) UnsignedUtil.setBit(ps, ProcessorStatus.Z, (out == 0b0) ? 1 : 0);
-        ps = (byte) UnsignedUtil.setBit(ps, ProcessorStatus.N, UnsignedUtil.retrieveBit(out, 7));
-    }
-
-    void CMY () {
-        ps = (byte) UnsignedUtil.setBit(ps, ProcessorStatus.C, (y >= memory) ? 1 : 0);
-
-        byte out = (byte)(y - memory);
-
-        ps = (byte) UnsignedUtil.setBit(ps, ProcessorStatus.Z, (out == 0b0) ? 1 : 0);
-        ps = (byte) UnsignedUtil.setBit(ps, ProcessorStatus.N, UnsignedUtil.retrieveBit(out, 7));
-    }
-
     void CPX () {
         ps = (byte) UnsignedUtil.setBit(ps, ProcessorStatus.C, (x >= memory) ? 1 : 0);
 
@@ -431,7 +413,7 @@ public class CPU6502 {
         pc = maddr;
     }
 
-    void JSR () { // Not sure if this order is right
+    void JSR () {
         pushStack(UnsignedUtil.getByteHi((short)(pc+3)));
         pushStack(UnsignedUtil.getByteLo((short)(pc+3)));
         pc = maddr;
