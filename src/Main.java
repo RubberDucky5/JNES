@@ -1,20 +1,23 @@
+import java.util.Scanner;
+
 public class Main {
     public static void main(String[] args) {
         Bus bus = new Bus();
         FullRam ram = new FullRam();
         bus.addDevice(ram);
 
+        bus.writeBytes((short)0x0600, new byte[]{(byte)0xA9, 0x55, (byte)0xA2, 0x34});
+
         CPU6502 cpu = new CPU6502(bus);
 
-        byte test = 0b00001000;
-        test = (byte)setBit(test, 3, 0);
-        System.out.println(Integer.toBinaryString(test));
-    }
-    static int setBit (int value, int bit, int b) {
-        int v = value;
-        v &= ~(1 << bit);
-        v |= b<< bit;
+        Scanner input = new Scanner(System.in);
 
-        return v;
+        while (true) {
+            if(input.nextLine() != ""){
+                break;
+            }
+
+            cpu.clock();
+        }
     }
 }

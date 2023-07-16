@@ -2,7 +2,7 @@ public class Opcode {
     // Addressing Mode Function Pointer
     public interface AddrModePtr {
         // Returns Memory
-        void XXXX(short operand);
+        byte XXXX(short operand);
     }
 
     // Mnemonic Instruction Function Pointer
